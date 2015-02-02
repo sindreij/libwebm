@@ -1,0 +1,35 @@
+CXX ?= g++
+AR ?= ar
+
+CXXFLAGS += -O2 -fPIC
+
+LIBWEBM_SRC = \
+	mkvparser.cpp \
+	mkvreader.cpp \
+	mkvmuxer.cpp \
+	mkvmuxerutil.cpp \
+	mkvwriter.cpp
+
+LIBWEBM_HEADERS = \
+	mkvparser.hpp \
+	mkvreader.hpp
+
+LIBWEBM_OBJS := $(patsubst %.cpp,$(OUT_DIR)/%.o,$(LIBWEBM_SRC))
+INSTALLED_HEADERS := $(patsubst %.hpp,$(OUT_DIR)/%.hpp,$(LIBWEBM_HEADERS))
+
+.PHONY: all clean
+
+all:	$(OUT_DIR)/libwebm.a $(INSTALLED_HEADERS)
+
+clean:
+	rm -f $(OUT_DIR)/libwebm.a $(LIBWEBM_OBJS)
+
+$(OUT_DIR)/libwebm.a:	$(LIBWEBM_OBJS)
+	$(AR) rcs $@ $(LIBWEBM_OBJS)
+
+$(OUT_DIR)/%.o: %.cpp
+	mkdir -p `dirname $@` && $(CXX) -c $(CXXFLAGS) -o $@ $<
+
+$(OUT_DIR)/%.hpp:	%.hpp
+	mkdir -p `dirname $@` && cp $^ $@
+
